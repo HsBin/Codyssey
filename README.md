@@ -143,9 +143,9 @@ cee30d97a978   my-web-app:1.0   "/docker-entrypoint.…"   41 seconds ago   Up 3
 
 ### 4.5 바인드 마운트 및 볼륨 영속성 검증
 [A] 바인드 마운트 (호스트 변경사항 즉시 반영)
-# 호스트 디렉토리 바인드 마운트 실행
 
-```Bash
+```bash
+# 호스트 디렉토리 바인드 마운트 실행
 $docker run -d -p 8082:80 -v$(pwd)/app:/usr/share/nginx/html --name bind-test my-web-app:1.0
 b3bbe1540475a0d6a194b1570d45fc6532f2f6aaeabb74d10da701067f6bbde5
 
@@ -205,7 +205,8 @@ $ git push -u origin main
 ```
 
 ### 5 트러블슈팅
-이슈 1: Docker 이미지명 공백 오타로 인한 Pull Access Denied 에러
+```text
+- 이슈 1: Docker 이미지명 공백 오타로 인한 Pull Access Denied 에러
 문제 현상: docker run 실행 시 pull access denied for my, repository does not exist 에러 발생.
 
 원인 가설: 명령어 마지막 파라미터 입력 시 my-web-app:1.0 대신 공백이 들어가 my와 web-app:1.0으로 분리되어 인지됨.
@@ -214,7 +215,7 @@ $ git push -u origin main
 
 해결/대안: 이미지명을 my-web-app:1.0으로 붙여서 재실행하여 컨테이너 정상 생성 및 구동 완료.
 
-이슈 2: zsh 쉘에서 특수문자(!) 해석 에러 (event not found)
+- 이슈 2: zsh 쉘에서 특수문자(!) 해석 에러 (event not found)
 문제 현상: echo "<h1>Updated via Bind Mount!</h1>" > app/index.html 입력 시 zsh: event not found: </h1> 에러 발생.
 
 원인 가설: zsh 쉘 특성상 큰따옴표("") 내부의 느낌표(!)를 커맨드 히스토리 이벤트 확장 명령으로 해석함.
@@ -223,7 +224,7 @@ $ git push -u origin main
 
 해결/대안: 작은따옴표('')를 사용해 echo '<h1>Updated via Bind Mount!</h1>' > app/index.html로 실행하여 정상 수정 완료.
 
-이슈 3: GitHub 비밀번호 인증 중단으로 인한 Push 실패 및 Keychain 적용
+- 이슈 3: GitHub 비밀번호 인증 중단으로 인한 Push 실패 및 Keychain 적용
 문제 현상: git push 진행 시 remote: Invalid username or token. Password authentication is not supported 에러 발생.
 
 원인 가설: GitHub 정책상 계정 비밀번호 인증이 차단되고 Personal Access Token(PAT) 사용이 필수임.
@@ -231,6 +232,7 @@ $ git push -u origin main
 확인 과정: 계정 비밀번호 입력 시 인증 거부 확인.
 
 해결/대안: git config --global credential.helper osxkeychain 명령어로 macOS 열쇠고리 패스워드 저장소를 활성화한 후, 비밀번호 란에 발급받은 Personal Access Token을 입력하여 최종 푸시(main -> main) 완료.
+```
 
 ###6. 보안 및 개인정보 보호
 본 기술 문서, 실행 로그 및 commit 기록에는 비밀번호, Personal Access Token 등 어떠한 민감 정보도 포함되어 있지 않으며 이메일 정보는 마스킹 처리되었습니다.
