@@ -64,7 +64,34 @@ drwxr-xr-x  4 bubble09085231  bubble09085231  128  8 12 17:57 .
 drwxr-xr-x  3 bubble09085231  bubble09085231   96  8 12 17:55 ..
 -rwxr-xr-x  1 bubble09085231  bubble09085231   17  8 12 17:56 sample.txt
 drwx------  2 bubble09085231  bubble09085231   64  8 12 17:57 test_dir
+
+#파일 이름 변경
+$mv sample.txt test_sample.txt
+&ls -la test_sample.txt
+-rwxr-xr-x  1 bubble09085231  bubble09085231  17  8 12 17:56 test_sample.txt
+
+#파일 이동
+$mv test_sample.txt app/
+$cd app
+$ls
+index.html	test_sample.txt
+$mv test_sample.txt ..
+$ls
+index.html
+$cd ..
+$ls
+app		Dockerfile	README.md	test_dir	test_sample.txt
+
+#파일 제거
+$rm test_sample.txt
+$ls
+app		Dockerfile	README.md	test_dir
+
 ```
+**파일 권한 정리**
+Linux 권한 숫자(rwx 비트) 및 소유자 관계 상세 정리
+리눅스 파일 권한은 소유자(User) / 그룹(Group) / 기타 사용자(Other) 3개 주체에 대해 각각 r(Read, 4), w(Write, 2), x(Execute, 1) 비트의 합으로 표현됩니다.
+755는 소유자는 읽기쓰기실행 가능, 그룹은 쓰기실행 가능, 기타 사용자는 쓰기실행 가능. 과 같이 경우의수가 겹쳐지지 않는 숫자들을 이용하여 합쳐서 권한을 나타냅니다.
 
 ### 4.2 Docker 설치 및 기본 점검
 OrbStack 환경에서 Docker 엔진 연동을 확인하고 기본 컨테이너를 실행했습니다.
@@ -172,9 +199,13 @@ Server:
    Base: fd07:b51a:cc66:d000::/56, Size: 64
 
 WARNING: DOCKER_INSECURE_NO_IPTABLES_RAW is set
+```
+**Docker 데몬 및 컨텍스트 상태 요약**
+docker info 실행 결과, OrbStack 가상화 기반의 Docker 데몬이 정상 활성화(Running) 상태이며, Default Context를 통해 Cgroup 및 Overlay2 Storage Driver가 문제없이 구동 중임을 확인하였습니다.
 
-
+```bash
 # hello-world 실행 성공 확인
+# 2026-08-12 21:10:15 KST 실행 기록
 $ docker run --rm hello-world
 Unable to find image 'hello-world:latest' locally
 latest: Pulling from library/hello-world
@@ -185,6 +216,18 @@ Status: Downloaded newer image for hello-world:latest
 Hello from Docker!
 This message shows that your installation appears to be working correctly.
 
+# docker images 확인
+$ docker images
+REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
+my-web-app    1.0       0b3601504fa7   3 hours ago    62.4MB
+ubuntu        latest    86a1a31fdd84   2 weeks ago    100MB
+hello-world   latest    e2ac70e7319a   4 months ago   10.1kB
+```
+- docker 삭제 기록
+<img width="838" height="437" alt="스크린샷 2026-08-12 오후 9 43 33" src="https://github.com/user-attachments/assets/ef12d9f4-dffc-472e-8b95-8911059a13a3" />
+
+
+```bash
 # ubuntu 대화형 컨테이너 진입 및 내부 명령어 수행
 $ docker run -it --name ubuntu-test ubuntu bash
 root@d4547fc1648e:/# ls -la
@@ -226,6 +269,8 @@ worksstation/
 ```
 - Dockerfile 내용:
 ```Bash
+$vi app/index.html
+
 FROM nginx:alpine
 COPY app/ /usr/share/nginx/html/
 EXPOSE 80
@@ -356,6 +401,17 @@ $ docker run -d --name vol-app-2 -v my-app-data:/data ubuntu sleep infinity
 
 $ docker exec vol-app-2 cat /data/hello.txt
 Persistent Data
+
+# +)볼륨 관리 및 삭제 방법
+$ docker volume ls
+DRIVER    VOLUME NAME
+local     my-app-data
+local     test-data
+$ docker volume rm test-data
+test-data
+$ docker volume ls
+DRIVER    VOLUME NAME
+local     my-app-data
 ```
 
 ### 4.6 Git 및 GitHub 연동
