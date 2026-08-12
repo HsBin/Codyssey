@@ -290,13 +290,14 @@ cee30d97a978   web-8080    0.00%     5.012MiB / 15.67GiB   0.03%     4.46kB / 2.
 ### 4.5 바인드 마운트 및 볼륨 영속성 검증
 [A] 바인드 마운트 (호스트 변경사항 즉시 반영)
 
-```bash
+```Bash
 # 호스트 디렉토리 바인드 마운트 실행
 $docker run -d -p 8082:80 -v$(pwd)/app:/usr/share/nginx/html --name bind-test my-web-app:1.0
 b3bbe1540475a0d6a194b1570d45fc6532f2f6aaeabb74d10da701067f6bbde5
 ```
 <img width="1970" height="1005" alt="스크린샷 2026-08-12 오후 6 14 07" src="https://github.com/user-attachments/assets/acdcca49-f861-43a7-8bd0-2f6acbd16b67" />
-```bash
+
+```Bash
 # 호스트 파일 내용 수정
 $ echo '<h1>Updated via Bind Mount!</h1>' > app/index.html
 
