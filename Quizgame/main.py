@@ -394,3 +394,26 @@ class QuizGame:
                 print("👋 퀴즈 게임을 종료합니다.")
                 break
 
+#main함수(객체생성하고 실행하는 곳)
+def main():
+    game = QuizGame()
+
+    try:
+        game.run()
+
+    except KeyboardInterrupt:
+        print("\n\n⚠️ Ctrl+C가 입력되었습니다.")
+        print("💾 데이터를 저장하고 안전하게 종료합니다.")
+
+        game.save_state()
+
+    except EOFError:
+        print("\n\n⚠️ 입력 스트림이 종료되었습니다.")
+        print("💾 데이터를 저장하고 안전하게 종료합니다.")
+
+        game.save_state()
+
+
+if __name__ == "__main__":
+    main()
+
