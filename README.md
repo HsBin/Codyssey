@@ -194,7 +194,7 @@ Inside Container
 root@d4547fc1648e:/# exit
 ```
 
-### 4.3 커스텀 Cockerfile 작성 및 웹 서버 빌드
+### 4.3 커스텀 Dockerfile 작성 및 웹 서버 빌드
 nginx:alpine 베이스 이미지와 커스텀 HTML을 결합한 웹 서버 이미지를 구축했습니다.
 
 
@@ -235,10 +235,52 @@ $ docker run -d -p 8081:80 --name web-8081 my-web-app:1.0
 2e0965f20753afca0f7b4ca09ce808ef2a755e39842ddfa35339e243aec18acf
 
 # 컨테이너 상태 확인
-$ docker ps
-CONTAINER ID   IMAGE            COMMAND                  CREATED          STATUS          PORTS                                    NAMES
-2e0965f20753   my-web-app:1.0   "/docker-entrypoint.…"   4 seconds ago    Up 3 seconds    0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   web-8081
-cee30d97a978   my-web-app:1.0   "/docker-entrypoint.…"   41 seconds ago   Up 39 seconds   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   web-8080
+$ docker ps -a
+CONTAINER ID   IMAGE            COMMAND                   CREATED       STATUS                   PORTS                                     NAMES
+39945b7bda9f   ubuntu           "sleep infinity"          2 hours ago   Up 2 hours                                                         vol-app-2
+b3bbe1540475   my-web-app:1.0   "/docker-entrypoint.…"   2 hours ago   Up 2 hours               0.0.0.0:8082->80/tcp, [::]:8082->80/tcp   bind-test
+2e0965f20753   my-web-app:1.0   "/docker-entrypoint.…"   2 hours ago   Up 2 hours               0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   web-8081
+cee30d97a978   my-web-app:1.0   "/docker-entrypoint.…"   2 hours ago   Up 2 hours               0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   web-8080
+d4547fc1648e   ubuntu           "bash"                    2 hours ago   Exited (0) 2 hours ago
+
+# 컨테이너 로그 확인
+$ docker logs b3bbe1540475
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2026/08/12 09:13:28 [notice] 1#1: using the "epoll" event method
+2026/08/12 09:13:28 [notice] 1#1: nginx/1.31.3
+2026/08/12 09:13:28 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0) 
+2026/08/12 09:13:28 [notice] 1#1: OS: Linux 6.17.8-orbstack-00308-g8f9c941121b1
+2026/08/12 09:13:28 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 20480:1048576
+2026/08/12 09:13:28 [notice] 1#1: start worker processes
+2026/08/12 09:13:28 [notice] 1#1: start worker process 30
+2026/08/12 09:13:28 [notice] 1#1: start worker process 31
+2026/08/12 09:13:28 [notice] 1#1: start worker process 32
+2026/08/12 09:13:28 [notice] 1#1: start worker process 33
+2026/08/12 09:13:28 [notice] 1#1: start worker process 34
+2026/08/12 09:13:28 [notice] 1#1: start worker process 35
+192.168.215.1 - - [12/Aug/2026:09:13:56 +0000] "GET / HTTP/1.1" 200 30 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
+2026/08/12 09:13:56 [error] 31#31: *1 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 192.168.215.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8082", referrer: "http://localhost:8082/"
+192.168.215.1 - - [12/Aug/2026:09:13:56 +0000] "GET /favicon.ico HTTP/1.1" 404 555 "http://localhost:8082/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
+192.168.215.1 - - [12/Aug/2026:09:17:21 +0000] "GET / HTTP/1.1" 200 33 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
+
+# 컨테이너 리소스 사용 상태 확인
+$docker stats
+2026/08/12 09:08:43 [notice] 1#1: nginx/1.31.3
+2026/08/12 09:08:43 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0) 
+CONTAINER ID   NAME        CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS 
+39945b7bda9f   vol-app-2   0.00%     1.699MiB / 15.67GiB   0.01%     830B / 126B       16.4MB / 0B      1 
+b3bbe1540475   bind-test   0.00%     5.402MiB / 15.67GiB   0.03%     5.13kB / 2.94kB   12MB / 8.19kB    7 
+2e0965f20753   web-8081    0.00%     5.41MiB / 15.67GiB    0.03%     3.68kB / 1.96kB   4.6MB / 8.19kB   7 
+cee30d97a978   web-8080    0.00%     5.012MiB / 15.67GiB   0.03%     4.46kB / 2.27kB   971kB / 8.19kB   7 
+
 ```
 
 ### 4.5 바인드 마운트 및 볼륨 영속성 검증
