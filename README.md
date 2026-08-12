@@ -373,6 +373,24 @@ cee30d97a978   web-8080    0.00%     5.012MiB / 15.67GiB   0.03%     4.46kB / 2.
 이미지를 바탕으로 독립된 가상 환경을 격리 생성하여 실제 실행(Run)시킨 상태(Process)입니다.
 읽기 전용 이미지 레이어 위에 수정 가능한 읽기/쓰기 레이어(Read/Write Layer)가 추가된 형태이며, 객체지향의 '인스턴스(Instance)' 개념과 대응됩니다.
 
+**포트 충돌 진단 및 해결 절차**
+포트 충돌(Bind for 0.0.0.0:8080 failed: port is already allocated) 발생 시 아래 3단계 절차로 해결합니다
+  1. 포트 사용 여부 확인
+```bash
+$ lsof -i :8080 # 또는 netstat / ss 명령어 사용
+$ ss -tulpn | grep 8080
+```
+  2. 충돌 프로세스 식별 및 조치: 점유 중인 프로세스 PID 확인 후 점유 프로세스 종료
+```bash
+$ kill -9 <PID>
+# 만약 기존 Docker 컨테이너가 점유 중이라면:
+$ docker stop web-8080 && docker rm web-8080
+```  
+  3. 포트 재할당 (대안 포트 사용) : 미사용 중인 다른 호스트 포트(예: 8081, 8082)로 변경하여 컨테이너 재실행
+```bash
+$ docker run -d -p 8081:80 --name web-8081 my-web-app:1.0
+```
+
 ### 4.5 바인드 마운트 및 볼륨 영속성 검증
 [A] 바인드 마운트 (호스트 변경사항 즉시 반영)
 
@@ -434,6 +452,10 @@ local     my-app-data
 # 컨테이너 볼륨 데이터를 호스트의 backup.tar 파일로 묶어서 스냅샷 백업
 $ docker run --rm -v my-app-data:/volume-data -v $(pwd):/backup ubuntu tar cvf /backup/backup.tar /volume-data
 ```
+- 볼륨 상태 상세하게 보기 및 백업 로그
+<img width="1015" height="243" alt="스크린샷 2026-08-12 오후 10 17 34" src="https://github.com/user-attachments/assets/433147ee-7b09-4d69-817d-892f57e84738" />
+
+
 
 **네트워크 네임스페이스, 포트 노출 및 보안**
 - 네트워크 네임스페이스 격리:
@@ -445,7 +467,7 @@ Docker 컨테이너는 기본적으로 호스트 및 타 컨테이너와 완전 
 
 **경로 선택 기준: 호스트 vs 컨테이너**
 - 호스트 경로 지정 기준:
-- 절대 경로 사용 권장 (/Users/username/...): 스크립트 실행 위치나 작업 디렉토리의 위치에 상관없이 항상 동일한 호스트 파일을 정확히 참조해야 할 때 사용합니다.
+- 절대 경로 사용 권장 (/Users/username/...): 스크립트 실행 위치나 작업 디렉토리의 위치에 상관없이 항상 동일한 호스트 파일을 정확히 참조해야 할 때 사용합니다. ex)볼륨 백업 방법을 시행할때 경로를 절대경로로 사용하였음. $docker run --rm -v test-data:/volume-data -v $(pwd):/backup ubuntu tar cvf /backup/backup.tar /volume-data
 - 상대 경로 사용 (./app): 프로젝트 repository 소스코드를 팀원들과 공유하거나 CI/CD 파이프라인에서 환경 독립적으로 재현해야 할 때 활용합니다. (volume을 이용한 컨테이너 사용 시 상대경로를 사용하였음. ex) docker exec vol-app-1 sh -c "echo 'Persistent Data' > /data/hello.txt")
 - 컨테이너 내부 경로 지정 기준:
 컨테이너 내부 경로는 호스트 상태와 상관없이 항상 절대 경로( /usr/share/nginx/html/)를 사용해야 합니다. (컨테이너 런타임 기준 애플리케이션 표준 디렉토리 구조를 준수하기 위함) (커스텀 이미지 제작할 때 사용하였음.)
@@ -519,7 +541,7 @@ branch 'main' set up to track 'origin/main'.
 
 ### 5 트러블슈팅
 ```text
-- 이슈 1: Docker 이미지명 공백 오타로 인한 Pull Access Denied 에러
+- 이슈 1: Docker 이미지명 공백 오타로 인한 Pull Access Denied 에러 (2026-08-12 17:45:10 KST)
 문제 현상: docker run 실행 시 pull access denied for my, repository does not exist 에러 발생.
 
 원인 가설: 명령어 마지막 파라미터 입력 시 my-web-app:1.0 대신 공백이 들어가 my와 web-app:1.0으로 분리되어 인지됨.
@@ -528,7 +550,7 @@ branch 'main' set up to track 'origin/main'.
 
 해결/대안: 이미지명을 my-web-app:1.0으로 붙여서 재실행하여 컨테이너 정상 생성 및 구동 완료.
 
-- 이슈 2: zsh 쉘에서 특수문자(!) 해석 에러 (event not found)
+- 이슈 2: zsh 쉘에서 특수문자(!) 해석 에러 (event not found) (2026-08-12 21:15:02 KST)
 문제 현상: echo "<h1>Updated via Bind Mount!</h1>" > app/index.html 입력 시 zsh: event not found: </h1> 에러 발생.
 
 원인 가설: zsh 쉘 특성상 큰따옴표("") 내부의 느낌표(!)를 커맨드 히스토리 이벤트 확장 명령으로 해석함.
@@ -537,7 +559,7 @@ branch 'main' set up to track 'origin/main'.
 
 해결/대안: 작은따옴표('')를 사용해 echo '<h1>Updated via Bind Mount!</h1>' > app/index.html로 실행하여 정상 수정 완료.
 
-- 이슈 3: GitHub 비밀번호 인증 중단으로 인한 Push 실패 및 Keychain 적용
+- 이슈 3: GitHub 비밀번호 인증 중단으로 인한 Push 실패 및 Keychain 적용 (2026-08-12 19:18:09 KST)
 문제 현상: git push 진행 시 remote: Invalid username or token. Password authentication is not supported 에러 발생.
 
 원인 가설: GitHub 정책상 계정 비밀번호 인증이 차단되고 Personal Access Token(PAT) 사용이 필수임.
@@ -548,4 +570,4 @@ branch 'main' set up to track 'origin/main'.
 ```
 
 ### 6. 보안 및 개인정보 보호
-본 기술 문서, 실행 로그 및 commit 기록에는 비밀번호, Personal Access Token 등 어떠한 민감 정보도 포함되어 있지 않으며 이메일 정보는 마스킹 처리되었습니다.
+본 기술 문서, 실행 로그 및 commit 기록에는 비밀번호, Personal Access Token 등 어떠한 민감 정보도 포함되어 있지 않습니다.
