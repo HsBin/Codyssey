@@ -119,4 +119,176 @@ class QuizGame:
         print("4. 점수 확인")
         print("5. 종료")
         print("=" * 40)
+    
+    #퀴즈를 실행하는 함수
+    def play_quiz(self):
+        if len(self.quizzes) == 0:
+            print("\n⚠️ 등록된 퀴즈가 없습니다.")
+            return
 
+        quizzes = self.quizzes.copy()
+
+        # 보너스 기능: 랜덤 출제
+        random.shuffle(quizzes)
+
+        print()
+        print(f"📝 퀴즈를 시작합니다! (총 {len(quizzes)}문제)")
+
+        correct_count = 0
+
+        #문제 출력 및 정답 입력받기.
+        for index, quiz in enumerate(quizzes, start=1):
+            print(f"\n[문제 {index}/{len(quizzes)}]")
+
+            quiz.display()
+
+            answer = self.get_number_input(
+                "\n정답 입력 (1-4): ",
+                1,
+                4
+            )
+
+            if quiz.check_answer(answer):
+                print("✅ 정답입니다!")
+                correct_count += 1
+            else:
+                print("❌ 오답입니다!")
+                print(
+                    f"정답은 {quiz.answer}번 "
+                    f"'{quiz.choices[quiz.answer - 1]}'입니다."
+                )
+	#점수 계산. 100점 만점
+        total = len(quizzes)
+        score = int(correct_count / total * 100)
+
+        print()
+        print("=" * 40)
+        print(
+            f"🏆 결과: {total}문제 중 "
+            f"{correct_count}문제 정답! ({score}점)"
+        )
+	
+	#기존의 최고점수가 없거나 더 높을 때 갱신.
+        if self.best_score is None or score > self.best_score:
+            self.best_score = score
+            self.best_correct = correct_count
+            self.best_total = total
+
+            print("🎉 새로운 최고 점수입니다!")
+
+            self.save_state()
+
+        print("=" * 40)
+    
+    #퀴즈 추가 함수
+    def add_quiz(self):
+        print()
+        print("📌 새로운 퀴즈를 추가합니다.")
+
+        question = self.get_text_input(
+            "\n문제를 입력하세요: "
+        )
+
+        choices = []
+
+	#선택지 입력받기.
+        for i in range(1, 5):
+            choice = self.get_text_input(
+                f"선택지 {i}: "
+            )
+            choices.append(choice)
+
+	#정답 입력받기.
+        answer = self.get_number_input(
+            "정답 번호 (1-4): ",
+            1,
+            4
+        )
+
+	#딕셔너리 형태로 퀴즈 데이터 초기화.
+        new_quiz = Quiz(
+            question,
+            choices,
+            answer
+        )
+
+	#퀴즈 추가
+        self.quizzes.append(new_quiz)
+
+	#저장함수 호출
+        self.save_state()
+
+        print("\n✅ 퀴즈가 추가되었습니다!")
+
+    #퀴즈 목록 출력
+    def show_quiz_list(self):
+        print()
+
+	#등록된 퀴즈 없을 때
+        if len(self.quizzes) == 0:
+            print("⚠️ 등록된 퀴즈가 없습니다.")
+            return
+
+	#퀴즈 총 개수 출력
+        print(
+            f"📋 등록된 퀴즈 목록 "
+            f"(총 {len(self.quizzes)}개)"
+        )
+
+        print("-" * 40)
+	
+	#퀴즈 1번부터 문제 출력
+        for index, quiz in enumerate(self.quizzes, start=1):
+            print(f"[{index}] {quiz.question}")
+
+        print("-" * 40)
+
+    #현재 최고점수 출력
+    def show_best_score(self):
+        print()
+
+        #최고점수가 존재하지 않을 때
+	if self.best_score is None:
+            print("🏆 아직 퀴즈를 풀지 않았습니다.")
+            return
+	
+	#최고점수와 문제 개수, 정답 문제 개수 출력
+        print(
+            f"🏆 최고 점수: {self.best_score}점 "
+            f"({self.best_total}문제 중 "
+            f"{self.best_correct}문제 정답)"
+        )
+
+    #state에 저장 하는 함수
+    def save_state(self):
+        #데이터 딕셔너리 형태로 변환해서 초기화
+	data = {
+            "quizzes": [
+                quiz.to_dict()
+                for quiz in self.quizzes
+            ],
+            "best_score": self.best_score,
+            "best_correct": self.best_correct,
+            "best_total": self.best_total
+        }
+
+	#오류발생 대비 try구문
+        try:
+            with open(
+                STATE_FILE,
+                "w",
+                encoding="utf-8"
+            ) as file:
+
+                json.dump(
+                    data,
+                    file,
+                    ensure_ascii=False,
+                    indent=4
+                )
+	#오류 발생 함수 사용. OS,Type
+        except (OSError, TypeError) as error:
+            print(
+                f"⚠️ 데이터를 저장하는 중 "
+                f"오류가 발생했습니다: {error}"
+            )
