@@ -234,6 +234,12 @@ cee30d97a978557c3dfff47be61596144879e3bed1282aec83049ab6a4ea3a58
 $ docker run -d -p 8081:80 --name web-8081 my-web-app:1.0
 2e0965f20753afca0f7b4ca09ce808ef2a755e39842ddfa35339e243aec18acf
 
+#8080포트 홈페이지 연결 확인
+<img width="2022" height="1117" alt="스크린샷 2026-08-12 오후 6 11 49" src="https://github.com/user-attachments/assets/ffdf8262-6379-49ca-bad9-056cbb21de31" />
+#8081포트 홈페이지 연결 확인
+<img width="1861" height="920" alt="스크린샷 2026-08-12 오후 6 11 57" src="https://github.com/user-attachments/assets/029085ae-ed59-43ad-8cfa-09c69bed0da2" />
+
+
 # 컨테이너 상태 확인
 $ docker ps -a
 CONTAINER ID   IMAGE            COMMAND                   CREATED       STATUS                   PORTS                                     NAMES
@@ -290,11 +296,15 @@ cee30d97a978   web-8080    0.00%     5.012MiB / 15.67GiB   0.03%     4.46kB / 2.
 # 호스트 디렉토리 바인드 마운트 실행
 $docker run -d -p 8082:80 -v$(pwd)/app:/usr/share/nginx/html --name bind-test my-web-app:1.0
 b3bbe1540475a0d6a194b1570d45fc6532f2f6aaeabb74d10da701067f6bbde5
+<img width="1970" height="1005" alt="스크린샷 2026-08-12 오후 6 14 07" src="https://github.com/user-attachments/assets/acdcca49-f861-43a7-8bd0-2f6acbd16b67" />
 
 # 호스트 파일 내용 수정
 $ echo '<h1>Updated via Bind Mount!</h1>' > app/index.html
 
 # 브라우저(http://localhost:8082) 접속 시 변경 사항이 즉시 응답됨을 확인
+<img width="1188" height="554" alt="스크린샷 2026-08-12 오후 6 17 26" src="https://github.com/user-attachments/assets/bdb90a6b-bbe1-4e62-a980-8d066df27f3d" />
+
+
 ```
 
 [B] Docker 볼륨 영속성 (컨테이너 삭제 후 데이터 유지)
