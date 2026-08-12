@@ -204,6 +204,13 @@ root@d4547fc1648e:/# exit
 docker attach: 메인 프로세스(PID 1) 터미널에 직접 연결되는 방식입니다.exit을 입력하고 나오면 메인 프로세스가 꺼지면서 컨테이너도 함께 종료됩니다. (컨테이너를 유지하려면 Ctrl + P $\rightarrow$ Ctrl + Q 단#축키 사용 필요)
 docker exec -it: 실행 중인 컨테이너 내부에 별도의 새로운 셸 프로세스를 추가로 생성해서 들어가는 방식입니다.내부에서 어떤 명령을 수행하든 exit으로 나올 때 추가한 셸만 종료되고 메인 프로세스는 유지되므로, 컨테이너가 꺼지지 않고 안정적으로 작동함을 확인했습니다.
 ```
+- exec 를 활용하여 들어갔다가 exit를 한경우:
+<img width="1246" height="285" alt="스크린샷 2026-08-12 오후 9 09 02" src="https://github.com/user-attachments/assets/271b4d91-3583-4615-ae67-99f04df169e1" />
+
+- 바로 attach되어 들어갔다가 exit를 한경우:
+<img width="1240" height="181" alt="스크린샷 2026-08-12 오후 9 10 45" src="https://github.com/user-attachments/assets/62d789e2-e7f5-4a71-acc9-846312f932c8" />
+
+
 ### 4.3 커스텀 Dockerfile 작성 및 웹 서버 빌드
 nginx:alpine 베이스 이미지와 커스텀 HTML을 결합한 웹 서버 이미지를 구축했습니다.
 
