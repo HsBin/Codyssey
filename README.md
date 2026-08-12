@@ -188,12 +188,22 @@ This message shows that your installation appears to be working correctly.
 # ubuntu 대화형 컨테이너 진입 및 내부 명령어 수행
 $ docker run -it --name ubuntu-test ubuntu bash
 root@d4547fc1648e:/# ls -la
+total 16
+drwxr-xr-x   1 root root    6 Aug 12 09:01 .
+drwxr-xr-x   1 root root    6 Aug 12 09:01 ..
+-rwxr-xr-x   1 root root    0 Aug 12 09:01 .dockerenv
+...
+drwxr-xr-x   1 root root   90 Jul 24 12:48 var
 root@d4547fc1648e:/# echo "Inside Container" > hello.txt
 root@d4547fc1648e:/# cat hello.txt
 Inside Container
 root@d4547fc1648e:/# exit
 ```
-
+```text
+- 컨테이너 접근 및 이탈 방식 비교(attach vs exec)
+docker attach: 메인 프로세스(PID 1) 터미널에 직접 연결되는 방식입니다.exit을 입력하고 나오면 메인 프로세스가 꺼지면서 컨테이너도 함께 종료됩니다. (컨테이너를 유지하려면 Ctrl + P $\rightarrow$ Ctrl + Q 단#축키 사용 필요)
+docker exec -it: 실행 중인 컨테이너 내부에 별도의 새로운 셸 프로세스를 추가로 생성해서 들어가는 방식입니다.내부에서 어떤 명령을 수행하든 exit으로 나올 때 추가한 셸만 종료되고 메인 프로세스는 유지되므로, 컨테이너가 꺼지지 않고 안정적으로 작동함을 확인했습니다.
+```
 ### 4.3 커스텀 Dockerfile 작성 및 웹 서버 빌드
 nginx:alpine 베이스 이미지와 커스텀 HTML을 결합한 웹 서버 이미지를 구축했습니다.
 
@@ -214,6 +224,13 @@ COPY app/ /usr/share/nginx/html/
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
+- 웹 서버 베이스 이미지 활용 + 정적 콘텐츠/설정 교체
+- 기존 베이스 이미지: nginx:alpine
+- 선택 사유: 경량화된 Linux distribution인 Alpine Linux 기반의 Nginx 이미지로, 보안성과 용량이 최적화되어 있어 커스텀 웹 서버 빌드에 적합함.
+- 호스트 환경의 app/ 디렉토리에 위치한 정적 웹 자원을 Nginx 웹 루트 디렉토리 내부로 복사하여 동동 서비스 구성
+- Nginx 기본 웹 서비스 포트인 80번 포트를 외부에 명시적으로 노출
+- Nginx 프로세스를 foreground 모드로 실행하여 컨테이너가 종료되지 않고 웹 서비스를 지속 유지하도록 지정
+
 - 빌드 명령어 및 결과:
 ```Bash
 $mkdir app$ echo "<h1>My Custom Web Server</h1>" > app/index.html
