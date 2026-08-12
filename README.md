@@ -64,6 +64,7 @@ drwxr-xr-x  4 bubble09085231  bubble09085231  128  8 12 17:57 .
 drwxr-xr-x  3 bubble09085231  bubble09085231   96  8 12 17:55 ..
 -rwxr-xr-x  1 bubble09085231  bubble09085231   17  8 12 17:56 sample.txt
 drwx------  2 bubble09085231  bubble09085231   64  8 12 17:57 test_dir
+```
 
 ### 4.2 Docker 설치 및 기본 점검
 OrbStack 환경에서 Docker 엔진 연동을 확인하고 기본 컨테이너를 실행했습니다.
@@ -91,6 +92,7 @@ root@d4547fc1648e:/# echo "Inside Container" > hello.txt
 root@d4547fc1648e:/# cat hello.txt
 Inside Container
 root@d4547fc1648e:/# exit
+```
 
 ###4.3 커스텀 Cockerfile 작성 및 웹 서버 빌드
 nginx:alpine 베이스 이미지와 커스텀 HTML을 결합한 웹 서버 이미지를 구축했습니다.
@@ -118,6 +120,7 @@ $mkdir app$ echo "<h1>My Custom Web Server</h1>" > app/index.html
 $vi Dockerfile$ docker build -t my-web-app:1.0 .
 [+] Building 7.1s (7/7) FINISHED                                                  docker:orbstack
  => naming to docker.io/library/my-web-app:1.0
+```
 
 ###4.4 포트 매핑 및 브라우저 접속 검증
 동일한 커스텀 이미지를 포트 매핑(8080,8081)으로 두 개의 독립된 컨테이너로 실행했습니다.
@@ -136,10 +139,13 @@ $ docker ps
 CONTAINER ID   IMAGE            COMMAND                  CREATED          STATUS          PORTS                                    NAMES
 2e0965f20753   my-web-app:1.0   "/docker-entrypoint.…"   4 seconds ago    Up 3 seconds    0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   web-8081
 cee30d97a978   my-web-app:1.0   "/docker-entrypoint.…"   41 seconds ago   Up 39 seconds   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   web-8080
+```
 
 ###4.5 바인드 마운트 및 볼륨 영속성 검증
 [A] 바인드 마운트 (호스트 변경사항 즉시 반영)
 # 호스트 디렉토리 바인드 마운트 실행
+
+```Bash
 $docker run -d -p 8082:80 -v$(pwd)/app:/usr/share/nginx/html --name bind-test my-web-app:1.0
 b3bbe1540475a0d6a194b1570d45fc6532f2f6aaeabb74d10da701067f6bbde5
 
@@ -147,10 +153,11 @@ b3bbe1540475a0d6a194b1570d45fc6532f2f6aaeabb74d10da701067f6bbde5
 $ echo '<h1>Updated via Bind Mount!</h1>' > app/index.html
 
 # 브라우저(http://localhost:8082) 접속 시 변경 사항이 즉시 응답됨을 확인
+```
 
 [B] Docker 볼륨 영속성 (컨테이너 삭제 후 데이터 유지)
-```Bash
 
+```Bash
 # 1. 볼륨 생성
 $ docker volume create my-app-data
 my-app-data
@@ -173,8 +180,10 @@ $ docker run -d --name vol-app-2 -v my-app-data:/data ubuntu sleep infinity
 
 $ docker exec vol-app-2 cat /data/hello.txt
 Persistent Data
+```
 
 ###4.6 Git 및 GitHub 연동
+
 ```Bash
 # Git 사용자 정보 및 기본 브랜치 설정
 $ git config --global user.name "장익빈"
@@ -193,6 +202,7 @@ $ git init
 $git add .$ git commit -m "docs: Add workstation mission README"
 $git branch -M main$ git remote add origin [https://github.com/HsBin/Codyssey.git](https://github.com/HsBin/Codyssey.git)
 $ git push -u origin main
+```
 
 ###5 트러블슈팅
 이슈 1: Docker 이미지명 공백 오타로 인한 Pull Access Denied 에러
