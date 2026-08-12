@@ -414,6 +414,9 @@ To https://github.com/HsBin/Codyssey.git
  * [new branch]      main -> main
 branch 'main' set up to track 'origin/main'.
 ```
+- 연동된 github에서 pull받는 증거
+<img width="910" height="270" alt="스크린샷 2026-08-12 오후 8 51 56" src="https://github.com/user-attachments/assets/029343ef-612d-43f0-8c6e-74b330791209" />
+
 
 ### 5 트러블슈팅
 ```text
