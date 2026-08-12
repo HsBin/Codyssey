@@ -367,10 +367,52 @@ user.email=wkddlrqls908@gmail.com
 init.defaultbranch=main
 
 # GitHub 원격 저장소 연동 및 푸시
+
+# 로컬 Git 저장소 초기화
 $ git init
-$git add .$ git commit -m "docs: Add workstation mission README"
-$git branch -M main$ git remote add origin [https://github.com/HsBin/Codyssey.git](https://github.com/HsBin/Codyssey.git)
+/Users/bubble09085231/codyssey/worksstation/.git/ 안의 빈 깃 저장소를 다시 초기화했습니다
+
+# 전체 작업 파일 스테이징
+$ git add .
+
+# 첫번째 커밋 실행 (파일 4개 추적 완료)
+$ git commit -m "docs: Add workstation mission README"
+[main (최상위-커밋) 54729c0] docs: Add workstation mission README
+ 4 files changed, 68 insertions(+)
+ create mode 100644 Dockerfile
+ create mode 100644 README.md
+ create mode 100644 app/index.html
+ create mode 100755 sample.txt
+
+# 기본 브랜치 이름을 main으로 재확정
+$ git branch -M main
+
+# GitHub 원격 저장소(origin) 주소 추가
+$ git remote add origin https://github.com/HsBin/Codyssey.git
+
+# [1차 Push 시도] 비밀번호 인증 중단으로 인한 실패 기록
 $ git push -u origin main
+Username for 'https://github.com': Hsbin
+Password for 'https://Hsbin@github.com': 
+remote: Invalid username or token. Password authentication is not supported for Git operations.
+fatal: Authentication failed for 'https://github.com/HsBin/Codyssey.git/'
+
+# [해결 조치] macOS Keychain 자격 증명 도우미 활성화 후 PAT(Personal Access Token) 연동
+$ git config --global credential.helper osxkeychain
+
+# [2차 Push 시도] 토큰 인증 완료 및 원격 저장소 업로드 성공
+$ git push -u origin main
+Username for 'https://github.com': Hsbin
+Password for 'https://Hsbin@github.com': 
+오브젝트 나열하는 중: 7, 완료.
+오브젝트 개수 세는 중: 100% (7/7), 완료.
+Delta compression using up to 6 threads
+오브젝트 압축하는 중: 100% (4/4), 완료.
+오브젝트 쓰는 중: 100% (7/7), 1.85 KiB | 1.85 MiB/s, 완료.
+Total 7 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/HsBin/Codyssey.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
 ```
 
 ### 5 트러블슈팅
