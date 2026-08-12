@@ -269,12 +269,15 @@ worksstation/
 ```
 - Dockerfile 내용:
 ```Bash
-$vi app/index.html
+$vi Dockerfile
 
 FROM nginx:alpine
 COPY app/ /usr/share/nginx/html/
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
+
+$:wq
+
 ```
 - 웹 서버 베이스 이미지 활용 + 정적 콘텐츠/설정 교체
 - 기존 베이스 이미지: nginx:alpine
@@ -305,6 +308,12 @@ $ docker run -d -p 8081:80 --name web-8081 my-web-app:1.0
 ```
 <img width="2022" height="1117" alt="스크린샷 2026-08-12 오후 6 11 49" src="https://github.com/user-attachments/assets/ffdf8262-6379-49ca-bad9-056cbb21de31" />
 <img width="1861" height="920" alt="스크린샷 2026-08-12 오후 6 11 57" src="https://github.com/user-attachments/assets/029085ae-ed59-43ad-8cfa-09c69bed0da2" />
+
+**Docker 핵심 옵션 의미 요약**
+-d (Detached): 컨테이너를 백그라운드 데몬 형태로 실행하여 터미널을 점유하지 않음.
+-p <Host_Port>:<Container_Port> (Port Mapping): 호스트의 특정 포트로 들어오는 traffic을 컨테이너 내부 포트로 포워딩.
+-v <Host_Dir>:<Container_Dir> (Volume/Bind Mount): 호스트의 파일/디렉토리를 컨테이너 내부 경로와 동기화하여 데이터 영속성 보장.
+--name <Name>: 컨테이너 식별용 고유 이름 지정.
 
 ```Bash
 # 컨테이너 상태 확인
@@ -355,6 +364,14 @@ b3bbe1540475   bind-test   0.00%     5.402MiB / 15.67GiB   0.03%     5.13kB / 2.
 cee30d97a978   web-8080    0.00%     5.012MiB / 15.67GiB   0.03%     4.46kB / 2.27kB   971kB / 8.19kB   7 
 
 ```
+**이미지(Image) vs 컨테이너(Container) 차이**
+- Docker 이미지 (Image):
+애플리케이션 실행에 필요한 모든 코드, 런타임, 라이브러리, 환경변수가 포함된 읽기 전용(Read-Only) 불변(Immutable) 템플릿입니다.
+객체지향 프로그래밍의 '클래스(Class)' 개념과 대응됩니다.
+
+- Docker 컨테이너 (Container):
+이미지를 바탕으로 독립된 가상 환경을 격리 생성하여 실제 실행(Run)시킨 상태(Process)입니다.
+읽기 전용 이미지 레이어 위에 수정 가능한 읽기/쓰기 레이어(Read/Write Layer)가 추가된 형태이며, 객체지향의 '인스턴스(Instance)' 개념과 대응됩니다.
 
 ### 4.5 바인드 마운트 및 볼륨 영속성 검증
 [A] 바인드 마운트 (호스트 변경사항 즉시 반영)
@@ -412,7 +429,26 @@ test-data
 $ docker volume ls
 DRIVER    VOLUME NAME
 local     my-app-data
+
+# 볼륨 백업 대안 (스냅샷/Tar 백업)
+# 컨테이너 볼륨 데이터를 호스트의 backup.tar 파일로 묶어서 스냅샷 백업
+$ docker run --rm -v my-app-data:/volume-data -v $(pwd):/backup ubuntu tar cvf /backup/backup.tar /volume-data
 ```
+
+**네트워크 네임스페이스, 포트 노출 및 보안**
+- 네트워크 네임스페이스 격리:
+Docker 컨테이너는 기본적으로 호스트 및 타 컨테이너와 완전 격리된 자신만의 Virtual Network Interface(veth)와 IP 주소를 부여받습니다.
+- 포트 노출(-p)이 필요한 이유:
+기본 격리 상태에서는 외부 네트워크(호스트 포함)에서 컨테이너 내부 서비스(예: 80번 포트)로 직접 접근할 수 없습니다. 따라서 호스트의 특정 포트(예: 8080)와 컨테이너의 포트(80)를 바인딩해 주는 포트 매핑 작업이 필수적입니다.
+- 보안 고려사항:
+0.0.0.0:8080:80 형태로 포트를 개방하면 외부 전체에 노출되므로, 내부 관리용 서비스는 127.0.0.1:8080:80과 같이 호스트 루프백 인터페이스로 제한하거나 방화벽(UFW, Security Group) 접근 제어를 병행해야 합니다.
+
+**경로 선택 기준: 호스트 vs 컨테이너**
+- 호스트 경로 지정 기준:
+- 절대 경로 사용 권장 (/Users/username/...): 스크립트 실행 위치나 작업 디렉토리의 위치에 상관없이 항상 동일한 호스트 파일을 정확히 참조해야 할 때 사용합니다.
+- 상대 경로 사용 (./app): 프로젝트 repository 소스코드를 팀원들과 공유하거나 CI/CD 파이프라인에서 환경 독립적으로 재현해야 할 때 활용합니다. (volume을 이용한 컨테이너 사용 시 상대경로를 사용하였음. ex) docker exec vol-app-1 sh -c "echo 'Persistent Data' > /data/hello.txt")
+- 컨테이너 내부 경로 지정 기준:
+컨테이너 내부 경로는 호스트 상태와 상관없이 항상 절대 경로( /usr/share/nginx/html/)를 사용해야 합니다. (컨테이너 런타임 기준 애플리케이션 표준 디렉토리 구조를 준수하기 위함) (커스텀 이미지 제작할 때 사용하였음.)
 
 ### 4.6 Git 및 GitHub 연동
 
