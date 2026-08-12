@@ -234,5 +234,5 @@ $ git push -u origin main
 해결/대안: git config --global credential.helper osxkeychain 명령어로 macOS 열쇠고리 패스워드 저장소를 활성화한 후, 비밀번호 란에 발급받은 Personal Access Token을 입력하여 최종 푸시(main -> main) 완료.
 ```
 
-###6. 보안 및 개인정보 보호
+### 6. 보안 및 개인정보 보호
 본 기술 문서, 실행 로그 및 commit 기록에는 비밀번호, Personal Access Token 등 어떠한 민감 정보도 포함되어 있지 않으며 이메일 정보는 마스킹 처리되었습니다.
