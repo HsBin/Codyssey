@@ -97,24 +97,24 @@ root@d4547fc1648e:/# exit
 ###4.3 커스텀 Cockerfile 작성 및 웹 서버 빌드
 nginx:alpine 베이스 이미지와 커스텀 HTML을 결합한 웹 서버 이미지를 구축했습니다.
 
-- 프로젝트 구조:
 
+- 프로젝트 구조:
+```text
 worksstation/
 ├── Dockerfile
 ├── sample.txt
 ├── test_dir/
 └── app/
     └── index.html
-
+```
 - Dockerfile 내용:
-
+```Bash
 FROM nginx:alpine
 COPY app/ /usr/share/nginx/html/
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
-
+```
 - 빌드 명령어 및 결과:
-
 ```Bash
 $mkdir app$ echo "<h1>My Custom Web Server</h1>" > app/index.html
 $vi Dockerfile$ docker build -t my-web-app:1.0 .
