@@ -303,6 +303,7 @@ $ echo '<h1>Updated via Bind Mount!</h1>' > app/index.html
 
 # 브라우저(http://localhost:8082) 접속 시 변경 사항이 즉시 응답됨을 확인
 ```
+
 <img width="1188" height="554" alt="스크린샷 2026-08-12 오후 6 17 26" src="https://github.com/user-attachments/assets/bdb90a6b-bbe1-4e62-a980-8d066df27f3d" />
 
 
