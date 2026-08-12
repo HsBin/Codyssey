@@ -94,7 +94,7 @@ Inside Container
 root@d4547fc1648e:/# exit
 ```
 
-###4.3 커스텀 Cockerfile 작성 및 웹 서버 빌드
+### 4.3 커스텀 Cockerfile 작성 및 웹 서버 빌드
 nginx:alpine 베이스 이미지와 커스텀 HTML을 결합한 웹 서버 이미지를 구축했습니다.
 
 
@@ -122,7 +122,7 @@ $vi Dockerfile$ docker build -t my-web-app:1.0 .
  => naming to docker.io/library/my-web-app:1.0
 ```
 
-###4.4 포트 매핑 및 브라우저 접속 검증
+### 4.4 포트 매핑 및 브라우저 접속 검증
 동일한 커스텀 이미지를 포트 매핑(8080,8081)으로 두 개의 독립된 컨테이너로 실행했습니다.
 
 ```Bash
@@ -141,7 +141,7 @@ CONTAINER ID   IMAGE            COMMAND                  CREATED          STATUS
 cee30d97a978   my-web-app:1.0   "/docker-entrypoint.…"   41 seconds ago   Up 39 seconds   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   web-8080
 ```
 
-###4.5 바인드 마운트 및 볼륨 영속성 검증
+### 4.5 바인드 마운트 및 볼륨 영속성 검증
 [A] 바인드 마운트 (호스트 변경사항 즉시 반영)
 # 호스트 디렉토리 바인드 마운트 실행
 
@@ -182,7 +182,7 @@ $ docker exec vol-app-2 cat /data/hello.txt
 Persistent Data
 ```
 
-###4.6 Git 및 GitHub 연동
+### 4.6 Git 및 GitHub 연동
 
 ```Bash
 # Git 사용자 정보 및 기본 브랜치 설정
@@ -204,7 +204,7 @@ $git branch -M main$ git remote add origin [https://github.com/HsBin/Codyssey.gi
 $ git push -u origin main
 ```
 
-###5 트러블슈팅
+### 5 트러블슈팅
 이슈 1: Docker 이미지명 공백 오타로 인한 Pull Access Denied 에러
 문제 현상: docker run 실행 시 pull access denied for my, repository does not exist 에러 발생.
 
